@@ -1,12 +1,12 @@
 package se.sdaproject;
 
-// a "box" in our previous picture
+
+import java.util.ArrayList;
+
 class Node {
-    // field 1: the data
-    // in our case just an integer
     int elem;
-    // field 2: the reference to the next node
     Node next;
+
     Node(int num) {
         this.elem = num;
         this.next = null;
@@ -19,76 +19,177 @@ public class LinkedList {
     private Node first = null;
 
     public void add(int num) {
-        // int num is available!
-
-        // step 1: is the linked list still empty?
         if (first == null) {
-            // in this case, the linked list is empty
-            Node node = new Node(num); // node.next == null
+            Node node = new Node(num);
             first = node;
         } else {
-            // in this case, the linked list is *not* empty
-            // this means, first != null
-
-            // step 2: find the last node
-            
-            // Key: introduce a temporary variable!
-            // we can then update this temporary variable,
-            // without changing "first"!
-            // important, since "first" should not be changed!
             Node current = first;
-            while (current.next != null) { // current is not the last node!
+            while (current.next != null) {
                 current = current.next;
             }
-            // what do we know about "current"?
-            // current.next == null
-            // AWESOME!
-            // it means, "current" is the last node!
-
-            // step 3: create a new node with the given int "num"
             Node node = new Node(num);
-
-            // step 4: change the reference of the last node to
-            // point to the new node
             current.next = node;
         }
 
     }
 
-    // useful for testing!
-    public String toString() {
-        // goal is to return a string like this:
-        // "LinkedList(5,2,10)"
+    // Returns the index at which param num exists
+    public int search(int num){
+        Node current = first;
+        boolean foundInt = false;
+        int index = 0;
+        while(current != null){
+            if(current.elem == num){
+                foundInt = true;
+                break;
+            }else{
+                current = current.next;
+            }
+            index++;
+            System.out.println(index);
+        }
+        return foundInt ? index : -1;
+    }
 
-        StringBuilder builder = new StringBuilder();
+    public ArrayList<Integer> indicesOf(int num){
+        Node current = first;
+        ArrayList<Integer> listOfIndices = new ArrayList<>(100);
+        int linkedListIndex = 0;
+        while(current != null){
+            if(current.elem == num){
+                listOfIndices.add(linkedListIndex);
+            }
+            current = current.next;
+            linkedListIndex++;
+        }
+        return listOfIndices;
+    }
 
-        // call methods on "builder" to add strings
+    // Returns the element in that index
+    public int get(int index){
+        Node current = first;
+        int result;
+        if(current != null){
+            while(index > 0){
+                current = current.next;
+                index--;
+            }
+            result = current.elem;
+        }else{
+            result = -1;
+        }
+        return result;
+    }
 
-        builder.append("LinkedList(");
-        // append strings for each integer in the list
+    public int size(){
+        Node current = first;
+        int size = 0;
+        while(current != null){
+            size++;
+            current = current.next;
+        }
+        return size;
+    }
 
-        if (first == null) {
-            // what to do here?
-            // string to be returned: "LinkedList()"
-            // nothing left to do!
+    public void oldRemove(int num){
+        System.out.println("enters");
+        int removeIndex = this.search(num);
+        System.out.println("removeIndex: "+removeIndex);
+        if(removeIndex == 0){
+            first = (removeIndex == this.size()-1) ? null : first.next;
+        } else if(removeIndex > 0 && removeIndex <= this.size()-1) {
+            int prevIndex = removeIndex--;
+            Node previous = first;
+            Node current = previous.next;
+            for(int i = 1; i < prevIndex; i++){
+                previous = previous.next;
+                current = current.next;
+            }
+            if(removeIndex < this.size()-1){
+                previous.next = current.next;
+                current.next = null; //redundant step redo tests
+            } else {
+                previous.next = null;
+            }
+        }
+    }
+
+    public boolean workingRemove(int num){
+        boolean result = false;
+        // If list is empty
+        if(first == null){
+            System.out.println("enters");
+            result = false;
         } else {
-            // here, we know that first != null
-            // go through the chain of nodes, starting with
-            // "first"
+            Node prev, current;
+            prev = first;
+            current = first;
 
-            Node current = first;            
-            // treat first element specially:
+            // If element to be removed is the first element
+            if(current.elem == num){
+                first = (first.next == null) ? null : first.next;
+            } else {
+                while(current != null && current.elem != num ){
+                    prev = current;
+                    current = current.next;
+                }
+                // If linked list is over before the element can be found
+                if(current == null){
+                    result = false;
+                }else{
+                    prev.next = current.next;
+                    current.next = null; // Is this step necessary?
+                    result = true;
+                }
+            }
+
+        }
+        return result;
+    }
+
+    public boolean remove(int num){
+        boolean result = false;
+        // If list is empty
+        Node prev, current;
+        try{
+            prev = first;
+            current = first;
+            if(current.elem == num){
+                first = (first.next == null) ? null : first.next;
+            } else {
+                while(current != null && current.elem != num ){
+                    prev = current;
+                    current = current.next;
+                }
+                // If linked list is over before the element can be found
+                if(current == null){
+                    result = false;
+                }else{
+                    prev.next = current.next;
+                    current.next = null; // Is this step necessary?
+                    result = true;
+                }
+            }
+        }catch (NullPointerException e){
+            System.out.println("Linked list is empty!");
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("LinkedList(");
+        if (first == null) {
+
+        } else {
+            Node current = first;
             builder.append("" + current.elem);
-
             while (current.next != null) {
                 current = current.next;
                 builder.append("," + current.elem);
             }
-            // current.next == null
-            // we have already appended the last num!
         }
-
-        // append ")"
         builder.append(")");
         return builder.toString();
     }
